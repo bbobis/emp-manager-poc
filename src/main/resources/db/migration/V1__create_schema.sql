@@ -1,40 +1,40 @@
-create table Title
+create table title
 (
     id   int unsigned auto_increment primary key,
     name varchar(100) not null
 );
 
-create table Department
+create table department
 (
     id   int unsigned auto_increment primary key,
     name varchar(100) not null
 );
 
-create table Employee
+create table employee
 (
     id        int unsigned auto_increment primary key,
-    firstName varchar(100) not null,
-    lastName  varchar(100) not null,
-    birthDate date         not null,
-    hireDate  date         not null,
+    first_name varchar(100) not null,
+    last_name  varchar(100) not null,
+    birth_date date         not null,
+    hire_date  date         not null,
     title_id  int unsigned not null,
     constraint `fk_employee_title` foreign key (title_id) references title (id)
 );
 
-create table Employee_Department
+create table employee_department
 (
     department_id int unsigned not null,
     employee_id   int unsigned not null,
     constraint `pk_employee_department_id` primary key (department_id, employee_id)
 );
 
-create table Salary
+create table salary
 (
     id          int unsigned auto_increment primary key,
     employee_id int unsigned not null,
     amount      bigint       not null,
-    fromDate    date         not null,
-    toDate      date         null,
+    from_date    date         not null,
+    to_date      date         null,
     constraint `fk_employee_salary` foreign key (employee_id) references Employee (id)
 );
 
