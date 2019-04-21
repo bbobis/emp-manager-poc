@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 @RestController
-@PreAuthorize("hasAuthority('Admin')")
+@PreAuthorize("hasRole('Admin')")
 public class PrincipalController {
     @GetMapping("/api/whoami")
     public ResponseEntity<?> whoami(Principal user) {

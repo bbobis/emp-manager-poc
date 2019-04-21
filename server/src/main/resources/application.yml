@@ -7,8 +7,8 @@ spring:
     hibernate:
       ddl-auto: none
     database-platform: org.hibernate.dialect.MySQLDialect
-
-okta:
-  oauth2:
-    clientId: 0oahovl5b9iF257jW356
-    issuer: https://dev-211653.okta.com/oauth2/default
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-211653.okta.com/oauth2/default

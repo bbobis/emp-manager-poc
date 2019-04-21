@@ -14,7 +14,7 @@ import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/api/employees")
-@PreAuthorize("hasAuthority('Staff')")
+@PreAuthorize("hasRole('Staff')")
 public class EmployeeController {
     private EmployeeRepository employeeRepository;
 
