@@ -65,6 +65,9 @@ class NavigationBar extends Component {
                         <NavItem>
                             <NavLink tag={Link} to='/employees'>Employees</NavLink>
                         </NavItem>
+                        <NavItem>
+                            <NavLink tag={Link} to='/departments'>Departments</NavLink>
+                        </NavItem>
                     </Nav>
                     <Nav navbar className='ml-auto'>
                         <NavItem>
