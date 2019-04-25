@@ -33,6 +33,10 @@ public class Employee {
     @ManyToOne
     private final Title title;
 
+    @OneToMany
+    @JoinColumn(name = "employee_id")
+    private List<Salary> salaries = new ArrayList<>();
+
     @ManyToMany
     @JoinTable(name = "employee_department",
             joinColumns = @JoinColumn(name = "employee_id", referencedColumnName = "id"),
