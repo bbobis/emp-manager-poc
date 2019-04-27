@@ -16,17 +16,13 @@ class App extends Component {
                 <Security issuer={config.auth.issuerUrl}
                           client_id={config.auth.clientId}
                           redirect_uri={window.location.origin + '/implicit/callback'}>
-                    <Container className='p-0' fluid >
-                        <NavigationBar/>
-                        <div className='p-2'>
-                            <Switch>
-                                <Route path="/" exact component={Home}/>
-                                <SecureRoute path='/employees' component={withAuth(Employees)}/>
-                                <SecureRoute path='/departments' component={Departments}/>
-                                <Route path='/implicit/callback' component={ImplicitCallback}/>
-                            </Switch>
-                        </div>
-                    </Container>
+                    <NavigationBar/>
+                    <Switch>
+                        <Route path="/" exact component={Home}/>
+                        <SecureRoute path='/employees' component={withAuth(Employees)}/>
+                        <SecureRoute path='/departments' component={Departments}/>
+                        <Route path='/implicit/callback' component={ImplicitCallback}/>
+                    </Switch>
                 </Security>
             </Router>
         );
