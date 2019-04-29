@@ -8,8 +8,7 @@ const app = {
 };
 
 const api = {
-    employees: `${app.protocol}://localhost:8080/api/employees`,
-    departments: `${app.protocol}://localhost:8080/api/departments`,
+    employeeManagerService: `${app.protocol}://localhost:8080/api/`
 };
 
 export default {

@@ -1,17 +1,7 @@
-import React , {Component} from 'react';
-import {
-    Navbar,
-    Nav,
-    NavLink,
-    NavItem,
-    NavbarToggler,
-    NavbarBrand,
-    Collapse,
-    Row,
-    Col
-} from 'reactstrap'
+import React, {Component} from 'react';
+import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'reactstrap'
 import {withAuth} from '@okta/okta-react';
-import { Link, withRouter } from 'react-router-dom';
+import {Link, withRouter} from 'react-router-dom';
 import Container from "reactstrap/es/Container";
 
 const LoginButton = (props) => <NavLink href='#' {...props}>Login</NavLink>;
@@ -59,7 +49,7 @@ class NavigationBar extends Component {
     render() {
         return (
             <Container fluid className="px-0 pb-3">
-                <Navbar color='dark' dark expand='md' fixed="top">
+                <Navbar color='dark' dark expand='md'>
                     <NavbarBrand tag={Link} to='/'>
                         EM React
                     </NavbarBrand>

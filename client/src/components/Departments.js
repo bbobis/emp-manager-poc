@@ -1,16 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import {Container, ListGroup, ListGroupItem} from "reactstrap";
-import withApi from "./Api";
+import {withAuth} from "@okta/okta-react";
+import {useToken} from "../hooks/useAuth";
+import services from "../api";
 
-export default withApi(function (props) {
+const Departments = function ({ auth }) {
+    const accessToken= useToken(auth);
     const [ departments, setDepartments ] = useState([]);
 
     useEffect(() => {
-        if (props.apiReady) {
-            const fetchData = async () => setDepartments(await props.getDepartments());
-            fetchData().catch(() => []);
-        }
-    }, [props.apiReady]);
+        const api = services(accessToken);
+        api.getDepartments()
+            .then(data => setDepartments(data))
+            .catch(() => setDepartments([]));
+    }, [accessToken]);
 
     return (
         <Container>
@@ -22,4 +25,6 @@ export default withApi(function (props) {
             </ListGroup>
         </Container>
     );
-});
+};
+
+export default withAuth(Departments);

@@ -1,29 +1,57 @@
-import React, {useEffect, useState} from 'react';
-import {Container, ListGroup, ListGroupItem} from "reactstrap";
-import withApi from "./Api";
+import React, {Fragment, useEffect, useState} from 'react';
+import {Button, Container, ListGroup, ListGroupItem, Row} from "reactstrap";
+import {withAuth} from "@okta/okta-react";
+import services from '../api';
+import {useToken} from '../hooks/useAuth';
+import EmployeeForm from "./EmployeeForm";
+import Col from "reactstrap/es/Col";
 
-export default withApi(function (props) {
+const Employees = ({ auth, match, history }) => {
+    const accessToken= useToken(auth);
     const [employees, setEmployees] = useState([]);
+    const [showForm, setShowForm] = useState(false);
+    console.log(accessToken);
+    const handleAddEmployee = () => {
+        setShowForm(true);
+        history.push(`${match.path}/create`);
+    };
 
     useEffect(() => {
-        if (props.apiReady) {
-            const fetchData = async () => setEmployees(await props.getEmployees());
-            fetchData().catch(() => []);
-        }
-    }, [props.apiReady]);
+        const api = services(accessToken);
+        api.getEmployees()
+            .then(data => setEmployees(data))
+            .catch(() => setEmployees([]));
+    }, [accessToken]);
 
     return (
-        <Container>
-            <ListGroup>
-                {
-                    employees &&
-                    employees.map(e =>
-                        <ListGroupItem key={`${e.firstName}_${e.lastName}`}>
-                            {`${e.firstName} ${e.lastName}`}
-                        </ListGroupItem>
-                    )
-                }
-            </ListGroup>
-        </Container>
+       <Fragment>
+           {!showForm &&
+               <Container>
+                   <Row>
+                       <Col className="d-flex justify-content-between">
+                           <h1>Employees</h1>
+                           <Button color="success" onClick={handleAddEmployee}>Add</Button>
+                       </Col>
+                   </Row>
+                   <hr/>
+                   <ListGroup>
+                       {
+                           employees &&
+                           employees.map(e =>
+                               <ListGroupItem key={`${e.firstName}_${e.lastName}`}>
+                                   {`${e.firstName} ${e.lastName}`}
+                               </ListGroupItem>
+                           )
+                       }
+                   </ListGroup>
+               </Container>
+           }
+           {showForm &&
+                <EmployeeForm />
+           }
+
+       </Fragment>
     );
-});
+};
+
+export default withAuth(Employees);

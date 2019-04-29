@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import {ImplicitCallback, SecureRoute, Security, withAuth} from '@okta/okta-react';
-import {Container} from 'reactstrap';
+import {ImplicitCallback, SecureRoute, Security} from '@okta/okta-react';
 import Home from './components/Home';
 import Employees from "./components/Employees";
 import NavigationBar from './components/NavigationBar';
@@ -19,7 +18,7 @@ class App extends Component {
                     <NavigationBar/>
                     <Switch>
                         <Route path="/" exact component={Home}/>
-                        <SecureRoute path='/employees' component={withAuth(Employees)}/>
+                        <SecureRoute path='/employees' component={Employees}/>
                         <SecureRoute path='/departments' component={Departments}/>
                         <Route path='/implicit/callback' component={ImplicitCallback}/>
                     </Switch>
