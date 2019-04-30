@@ -32,6 +32,38 @@ export default (token => {
         });
     };
 
+    const createEmployee = (
+        firstName,
+        lastName,
+        birthDate,
+        hireDate,
+        title,
+        departments
+    ) => {
+        return new Promise((resolve, reject) => {
+            if (token) {
+                api
+                    .newRequest()
+                    .withRequestOptions(requestConfig)
+                    .follow('employees')
+                    .post({
+                        firstName,
+                        lastName,
+                        birthDate,
+                        hireDate,
+                        title,
+                        departments
+                    }, (error, response, traversal) => {
+                        console.log(response);
+                        console.log(traversal);
+                        resolve('');
+                    });
+            } else {
+                reject([]);
+            }
+        });
+    };
+
     const getDepartments = () => {
         return new Promise((resolve, reject) => {
             if (token) {
@@ -48,8 +80,26 @@ export default (token => {
         });
     };
 
+    const getTitles = () => {
+        return new Promise((resolve, reject) => {
+            if (token) {
+                api
+                    .newRequest()
+                    .withRequestOptions(requestConfig)
+                    .follow('titles')
+                    .getResource((error, resource) => {
+                        resolve(resource._embedded.titles);
+                    });
+            } else {
+                reject([]);
+            }
+        });
+    };
+
     return {
         getEmployees,
-        getDepartments
+        getDepartments,
+        getTitles,
+        createEmployee
     }
 });
