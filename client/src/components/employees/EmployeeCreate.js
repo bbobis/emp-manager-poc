@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {withAuth} from '@okta/okta-react';
 import {Button, Container, Form, FormGroup, Input, Label} from "reactstrap";
-import moment from 'moment';
-import {useToken} from "../hooks/useAuth";
-import API from '../api';
+import moment from 'moment/moment';
+import {useToken} from "../../hooks/useAuth";
+import API from '../../api';
 
 const EmployeeCreate = ({ auth, history }) => {
     const accessToken = useToken(auth);

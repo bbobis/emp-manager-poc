@@ -5,8 +5,8 @@ import Home from './components/Home';
 import NavigationBar from './components/NavigationBar';
 import 'bootstrap/dist/css/bootstrap.css';
 import config from './config';
-import Departments from "./components/Departments";
-import {EmployeesRoutes} from "./routes";
+import Departments from "./components/departments";
+import Employees from './components/employees';
 
 class App extends Component {
     render() {
@@ -19,7 +19,7 @@ class App extends Component {
                     <Switch>
                         <Route path="/" exact component={Home}/>
                         <SecureRoute path='/departments' component={Departments}/>
-                        <EmployeesRoutes />
+                        <Route path="/employees" component={Employees} />
                         <Route path='/implicit/callback' component={ImplicitCallback}/>
                         <Route render={() => {
                             return <h1>Not Found</h1>

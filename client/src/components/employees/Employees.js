@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {Col, Container, ListGroup, ListGroupItem, Row} from "reactstrap";
 import {withAuth} from "@okta/okta-react";
-import services from '../api';
-import {useToken} from '../hooks/useAuth';
+import services from '../../api';
+import {useToken} from '../../hooks/useAuth';
 import {Link} from "react-router-dom";
 
 const Employees = ({ auth }) => {
