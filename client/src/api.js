@@ -6,99 +6,101 @@ traverson.registerMediaType(JsonHalAdapter.mediaType, JsonHalAdapter);
 
 const api = traverson.from('/api/').jsonHal();
 
-export default (token => {
-    const requestConfig = {
-        headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/hal+json',
-            'Content-Type': 'application/json'
-        }
-    };
+/* eslint-disable no-underscore-dangle */
+export default token => {
+  const requestConfig = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/hal+json',
+      'Content-Type': 'application/json',
+    },
+  };
 
-    const getEmployees = () => {
-        return new Promise((resolve, reject) => {
-            if (token) {
-                api
-                    .newRequest()
-                    .withRequestOptions(requestConfig)
-                    .follow('employees')
-                    .getResource((error, resource) => {
-                        resolve(resource._embedded.employees);
-                    });
-            } else {
-                reject([]);
+  const getEmployees = () => {
+    return new Promise((resolve, reject) => {
+      if (token) {
+        api
+          .newRequest()
+          .withRequestOptions(requestConfig)
+          .follow('employees')
+          .getResource((error, resource) => {
+            resolve(resource._embedded.employees);
+          });
+      } else {
+        reject(new Error('Problem encountered getting employees'));
+      }
+    });
+  };
+
+  const createEmployee = (
+    firstName,
+    lastName,
+    birthDate,
+    hireDate,
+    title,
+    departments
+  ) => {
+    return new Promise((resolve, reject) => {
+      if (token) {
+        api
+          .newRequest()
+          .withRequestOptions(requestConfig)
+          .follow('employees')
+          .post(
+            {
+              firstName,
+              lastName,
+              birthDate,
+              hireDate,
+              title,
+              departments,
+            },
+            () => {
+              resolve('');
             }
-        });
-    };
+          );
+      } else {
+        reject(new Error('Problem encountered creating employee'));
+      }
+    });
+  };
 
-    const createEmployee = (
-        firstName,
-        lastName,
-        birthDate,
-        hireDate,
-        title,
-        departments
-    ) => {
-        return new Promise((resolve, reject) => {
-            if (token) {
-                api
-                    .newRequest()
-                    .withRequestOptions(requestConfig)
-                    .follow('employees')
-                    .post({
-                        firstName,
-                        lastName,
-                        birthDate,
-                        hireDate,
-                        title,
-                        departments
-                    }, (error, response, traversal) => {
-                        console.log(response);
-                        console.log(traversal);
-                        resolve('');
-                    });
-            } else {
-                reject([]);
-            }
-        });
-    };
+  const getDepartments = () => {
+    return new Promise((resolve, reject) => {
+      if (token) {
+        api
+          .newRequest()
+          .withRequestOptions(requestConfig)
+          .follow('departments')
+          .getResource((error, resource) => {
+            resolve(resource._embedded.departments);
+          });
+      } else {
+        reject(new Error('Problem encountered getting departments'));
+      }
+    });
+  };
 
-    const getDepartments = () => {
-        return new Promise((resolve, reject) => {
-            if (token) {
-                api
-                    .newRequest()
-                    .withRequestOptions(requestConfig)
-                    .follow('departments')
-                    .getResource((error, resource) => {
-                        resolve(resource._embedded.departments);
-                    });
-            } else {
-                reject([]);
-            }
-        });
-    };
+  const getTitles = () => {
+    return new Promise((resolve, reject) => {
+      if (token) {
+        api
+          .newRequest()
+          .withRequestOptions(requestConfig)
+          .follow('titles')
+          .getResource((error, resource) => {
+            resolve(resource._embedded.titles);
+          });
+      } else {
+        reject(new Error('Problem encountered getting titles'));
+      }
+    });
+  };
 
-    const getTitles = () => {
-        return new Promise((resolve, reject) => {
-            if (token) {
-                api
-                    .newRequest()
-                    .withRequestOptions(requestConfig)
-                    .follow('titles')
-                    .getResource((error, resource) => {
-                        resolve(resource._embedded.titles);
-                    });
-            } else {
-                reject([]);
-            }
-        });
-    };
-
-    return {
-        getEmployees,
-        getDepartments,
-        getTitles,
-        createEmployee
-    }
-});
+  return {
+    getEmployees,
+    getDepartments,
+    getTitles,
+    createEmployee,
+  };
+};

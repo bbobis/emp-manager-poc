@@ -1,8 +1,16 @@
 import React from 'react';
-import {SecureRoute} from "@okta/okta-react";
-import Departments from "./Departments";
+import PropTypes from 'prop-types';
+import { SecureRoute } from '@okta/okta-react';
+import Departments from './Departments';
 
-export default ({match}) =>
-    <React.Fragment>
-        <SecureRoute path={match.path} component={Departments} />
-    </React.Fragment>
+const DepartmentRoutes = ({ match }) => (
+  <React.Fragment>
+    <SecureRoute path={match.path} component={Departments} />
+  </React.Fragment>
+);
+
+DepartmentRoutes.propTypes = {
+  match: PropTypes.object.isRequired,
+};
+
+export default DepartmentRoutes;
