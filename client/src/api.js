@@ -1,11 +1,10 @@
 import traverson from 'traverson';
 import JsonHalAdapter from 'traverson-hal';
-import config from "./config";
 
 // register the traverson-hal plug-in for media type 'application/hal+json'
 traverson.registerMediaType(JsonHalAdapter.mediaType, JsonHalAdapter);
 
-const api = traverson.from(config.api.employeeManagerService).jsonHal();
+const api = traverson.from('/api/').jsonHal();
 
 export default (token => {
     const requestConfig = {
