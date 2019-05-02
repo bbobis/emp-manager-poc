@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { ImplicitCallback, SecureRoute, Security } from '@okta/okta-react';
+import { ImplicitCallback, Security } from '@okta/okta-react';
 import Home from './components/Home';
 import NavigationBar from './components/NavigationBar';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -18,7 +18,7 @@ const App = () => (
       <NavigationBar />
       <Switch>
         <Route path="/" exact component={Home} />
-        <SecureRoute path="/departments" component={Departments} />
+        <Route path="/departments" component={Departments} />
         <Route path="/employees" component={Employees} />
         <Route path="/implicit/callback" component={ImplicitCallback} />
         <Route
