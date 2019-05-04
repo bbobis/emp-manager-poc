@@ -19,7 +19,7 @@ const NavigationBar = ({ auth }) => {
   const [isNavBarOpen, setIsNavBarOpen] = useState(null);
   const login = () => auth.login();
   const logout = () => auth.logout('/');
-  const toggleNavigationBar = () => setIsNavBarOpen(true);
+  const toggleNavigationBar = () => setIsNavBarOpen(!isNavBarOpen);
 
   return (
     <Container fluid className="px-0 pb-3">

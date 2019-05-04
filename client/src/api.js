@@ -27,14 +27,19 @@ const API = auth => {
     return undefined;
   };
 
-  const getEmployees = () => {
+  const getEmployees = (search = '') => {
     return new Promise(async (resolve, reject) => {
       const requestConfig = await createRequestConfig(auth);
       if (requestConfig) {
         api
           .newRequest()
-          .withRequestOptions(requestConfig)
-          .follow('employees')
+          .withRequestOptions({
+            ...requestConfig,
+            qs: {
+              search,
+            },
+          })
+          .follow('employees', 'search', 'byName')
           .getResource((error, resource) => {
             resolve(resource._embedded.employees);
           });

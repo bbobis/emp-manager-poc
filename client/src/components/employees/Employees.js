@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Col, Container, ListGroup, ListGroupItem, Row } from 'reactstrap';
+import {
+  Col,
+  Container,
+  Input,
+  ListGroup,
+  ListGroupItem,
+  Row,
+} from 'reactstrap';
 import { withAuth } from '@okta/okta-react';
 import { Link } from 'react-router-dom';
 import API from '../../api';
 
 const Employees = ({ auth }) => {
   const [employees, setEmployees] = useState([]);
+  const [search, setSearch] = useState('');
   useEffect(() => {
     API(auth)
-      .getEmployees()
+      .getEmployees(search)
       .then(data => setEmployees(data))
       .catch(() => setEmployees([]));
-  }, [auth]);
+  }, [auth, search]);
 
   return (
     <Container>
@@ -25,6 +33,11 @@ const Employees = ({ auth }) => {
         </Col>
       </Row>
       <hr />
+      <Input
+        placeholder="Search name"
+        onChange={e => setSearch(e.target.value)}
+      />
+      <br />
       <ListGroup>
         {employees &&
           employees.map(e => (
