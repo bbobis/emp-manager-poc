@@ -42,4 +42,8 @@ public class Employee {
             joinColumns = @JoinColumn(name = "employee_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "department_id", referencedColumnName = "id"))
     private List<Department> departments = new ArrayList<>();
+
+    public String getFullName() {
+        return String.format("%s %s", this.firstName, this.lastName);
+    }
 }

@@ -12,6 +12,9 @@ public interface EmployeeProjection {
 
     String getLastName();
 
+    @Value("#{target.getFullName()}")
+    String getFullName();
+
     LocalDate getBirthDate();
 
     LocalDate getHireDate();
