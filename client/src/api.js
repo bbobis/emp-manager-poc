@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import traverson from 'traverson';
 import JsonHalAdapter from 'traverson-hal';
 
@@ -7,18 +8,29 @@ traverson.registerMediaType(JsonHalAdapter.mediaType, JsonHalAdapter);
 const api = traverson.from('/api/').jsonHal();
 
 /* eslint-disable no-underscore-dangle */
-export default token => {
-  const requestConfig = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/hal+json',
-      'Content-Type': 'application/json',
-    },
+const API = auth => {
+  const createRequestConfig = async ({ isAuthenticated, getAccessToken }) => {
+    const isUserAuthenticated = await isAuthenticated();
+
+    if (isUserAuthenticated) {
+      const token = await getAccessToken();
+
+      return {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/hal+json',
+          'Content-Type': 'application/json',
+        },
+      };
+    }
+
+    return undefined;
   };
 
   const getEmployees = () => {
-    return new Promise((resolve, reject) => {
-      if (token) {
+    return new Promise(async (resolve, reject) => {
+      const requestConfig = await createRequestConfig(auth);
+      if (requestConfig) {
         api
           .newRequest()
           .withRequestOptions(requestConfig)
@@ -40,8 +52,9 @@ export default token => {
     title,
     departments
   ) => {
-    return new Promise((resolve, reject) => {
-      if (token) {
+    return new Promise(async (resolve, reject) => {
+      const requestConfig = await createRequestConfig(auth);
+      if (requestConfig) {
         api
           .newRequest()
           .withRequestOptions(requestConfig)
@@ -66,8 +79,9 @@ export default token => {
   };
 
   const getDepartments = () => {
-    return new Promise((resolve, reject) => {
-      if (token) {
+    return new Promise(async (resolve, reject) => {
+      const requestConfig = await createRequestConfig(auth);
+      if (requestConfig) {
         api
           .newRequest()
           .withRequestOptions(requestConfig)
@@ -82,8 +96,9 @@ export default token => {
   };
 
   const getTitles = () => {
-    return new Promise((resolve, reject) => {
-      if (token) {
+    return new Promise(async (resolve, reject) => {
+      const requestConfig = await createRequestConfig(auth);
+      if (requestConfig) {
         api
           .newRequest()
           .withRequestOptions(requestConfig)
@@ -104,3 +119,6 @@ export default token => {
     createEmployee,
   };
 };
+
+export default API;
+export const useAPI = auth => useCallback(() => API(auth), [auth]);

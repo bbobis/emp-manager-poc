@@ -1,76 +1,134 @@
 import React, { useEffect, useState } from 'react';
 import { withAuth } from '@okta/okta-react';
-import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
+import {
+  Button,
+  Container,
+  Form,
+  FormFeedback,
+  FormGroup,
+  Input,
+  Label,
+} from 'reactstrap';
 import moment from 'moment/moment';
-import { useToken } from '../../hooks/useAuth';
-import API from '../../api';
 import PropTypes from 'prop-types';
+import { useAPI } from '../../api';
 
-const EmployeeCreate = ({ auth, history }) => {
-  const accessToken = useToken(auth);
+// Input control state object
+class FormControlState {
+  constructor(value = '', validationMessage = '') {
+    this.value = value;
+    this.validationMessage = validationMessage;
+  }
+
+  isValid() {
+    return this.validationMessage.length === 0;
+  }
+}
+
+// Form validator
+const validate = formState => {
+  const newState = { ...formState };
+
+  // validate first name
+  if (!newState.firstName.value) {
+    newState.firstName.validationMessage = 'First name is required';
+  }
+
+  // validate last name
+  if (!newState.lastName.value) {
+    newState.lastName.validationMessage = 'Last name is require';
+  }
+
+  // validate birth date
+  if (!newState.birthDate.value) {
+    newState.birthDate.validationMessage = 'Birth date is required';
+  }
+
+  // validate title
+  if (!newState.selectedTitle.value) {
+    newState.selectedTitle.validationMessage = 'Title is required';
+  }
+
+  // validate departments
+  if (!newState.selectedDepartments.value.length) {
+    newState.selectedDepartments.validationMessage = 'Department is required';
+  }
+
+  return {
+    ...newState,
+    isValid:
+      newState.firstName.isValid() &&
+      newState.lastName.isValid() &&
+      newState.birthDate.isValid() &&
+      newState.selectedTitle.isValid() &&
+      newState.selectedDepartments.isValid(),
+  };
+};
+
+// From initial State
+const initialState = () => ({
+  isValid: false,
+  firstName: new FormControlState(),
+  lastName: new FormControlState(),
+  birthDate: new FormControlState(moment().format('YYYY-MM-DD')),
+  selectedTitle: new FormControlState(),
+  selectedDepartments: new FormControlState([]),
+});
+
+// Component
+const EmployeeCreate = ({ auth }) => {
+  const api = useAPI(auth);
 
   // fetch titles
   const [titles, setTitles] = useState([]);
   useEffect(() => {
-    const { getTitles } = API(accessToken);
-    getTitles()
+    api()
+      .getTitles()
       .then(data => setTitles(data))
       .catch(() => []);
-  }, [accessToken]);
+  }, [api]);
 
   // fetch departments
   const [departments, setDepartments] = useState([]);
   useEffect(() => {
-    const { getDepartments } = API(accessToken);
-    getDepartments()
+    api()
+      .getDepartments()
       .then(data => setDepartments(data))
       .catch(() => []);
-  }, [accessToken]);
+  }, [api]);
 
-  //form states
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [birthDate, setBirthDate] = useState(moment().format('YYYY-MM-DD'));
-  const [selectedTitle, setSelectedTitle] = useState('');
-  const [selectedDepartments, setSelectedDepartments] = useState([]);
+  // form states
+  const [formState, setFormState] = useState(initialState());
 
-  const handleChange = event => {
-    switch (event.target.name) {
-      case 'firstName':
-        setFirstName(event.target.value);
-        break;
-      case 'lastName':
-        setLastName(event.target.value);
-        break;
-      case 'birthDate':
-        setBirthDate(event.target.value);
-        break;
-      case 'title':
-        setSelectedTitle(event.target.value);
-        break;
-      case 'departments':
-        setSelectedDepartments([...selectedDepartments, event.target.value]);
-        break;
-      default:
-    }
+  const handleChange = ({ target }) => {
+    const newState = { ...formState };
+    const { name, value, selectedOptions } = target;
+    newState[`${name}`] =
+      name === 'selectedDepartments'
+        ? new FormControlState([...selectedOptions].map(o => o.value))
+        : new FormControlState(value);
+    setFormState({ ...newState });
   };
 
   const handleSubmit = event => {
     event.preventDefault();
-    if (accessToken) {
-      const api = API(accessToken);
-      api
-        .createEmployee(
-          firstName,
-          lastName,
-          birthDate,
-          moment().format('YYYY-MM-DD'),
-          selectedTitle,
-          selectedDepartments
-        )
-        .then(() => history.replace('/employees'));
+    const result = validate(formState);
+    if (result.isValid) {
+      // On successful save return form to initial state
+      // Not calling API for actual save at the moment
+      setFormState(initialState());
+    } else {
+      setFormState(result);
     }
   };
+
+  const {
+    firstName,
+    lastName,
+    birthDate,
+    selectedTitle,
+    selectedDepartments,
+  } = formState;
   return (
     <Container>
       <h1>Add Employee</h1>
@@ -78,29 +136,51 @@ const EmployeeCreate = ({ auth, history }) => {
       <Form onSubmit={handleSubmit}>
         <FormGroup>
           <Label for="firstName">First Name</Label>
-          <Input name="firstName" value={firstName} onChange={handleChange} />
+          <Input
+            name="firstName"
+            value={firstName.value}
+            onChange={handleChange}
+            invalid={!firstName.isValid()}
+          />
+          {!firstName.isValid() && (
+            <FormFeedback>{firstName.validationMessage}</FormFeedback>
+          )}
         </FormGroup>
         <FormGroup>
           <Label for="lastName">Last Name</Label>
-          <Input name="lastName" value={lastName} onChange={handleChange} />
+          <Input
+            name="lastName"
+            value={lastName.value}
+            onChange={handleChange}
+            invalid={!lastName.isValid()}
+          />
+          {!lastName.isValid() && (
+            <FormFeedback>{lastName.validationMessage}</FormFeedback>
+          )}
         </FormGroup>
         <FormGroup>
           <Label for="birthDate">Birth Date</Label>
           <Input
             type="date"
             name="birthDate"
-            value={birthDate}
+            value={birthDate.value}
             onChange={handleChange}
+            invalid={!birthDate.isValid()}
           />
+          {!birthDate.isValid() && (
+            <FormFeedback>{birthDate.validationMessage}</FormFeedback>
+          )}
         </FormGroup>
         <FormGroup>
           <Label for="title">Title</Label>
           <Input
             type="select"
-            name="title"
-            value={selectedTitle}
+            name="selectedTitle"
+            value={selectedTitle.value}
             onChange={handleChange}
+            invalid={!selectedTitle.isValid()}
           >
+            <option>Select title</option>
             {titles &&
               titles.map(({ name, _links }) => (
                 <option key={name} value={_links.self.href}>
@@ -108,15 +188,19 @@ const EmployeeCreate = ({ auth, history }) => {
                 </option>
               ))}
           </Input>
+          {!selectedTitle.isValid() && (
+            <FormFeedback>{selectedTitle.validationMessage}</FormFeedback>
+          )}
         </FormGroup>
         <FormGroup>
           <Label for="title">Departments</Label>
           <Input
             type="select"
             multiple
-            name="departments"
-            value={selectedDepartments}
+            name="selectedDepartments"
+            value={selectedDepartments.value}
             onChange={handleChange}
+            invalid={!selectedDepartments.isValid()}
           >
             {departments &&
               departments.map(({ name, _links }) => (
@@ -125,6 +209,9 @@ const EmployeeCreate = ({ auth, history }) => {
                 </option>
               ))}
           </Input>
+          {!selectedDepartments.isValid() && (
+            <FormFeedback>{selectedDepartments.validationMessage}</FormFeedback>
+          )}
         </FormGroup>
         <Button type="submit">Submit</Button>
       </Form>
@@ -135,7 +222,6 @@ const EmployeeCreate = ({ auth, history }) => {
 // declare prop types
 EmployeeCreate.propTypes = {
   auth: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
 };
 
 export default withAuth(EmployeeCreate);

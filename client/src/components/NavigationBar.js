@@ -17,7 +17,6 @@ import { useIsAuthenticated } from '../hooks/useAuth';
 const NavigationBar = ({ auth }) => {
   const isAuthenticated = useIsAuthenticated(auth);
   const [isNavBarOpen, setIsNavBarOpen] = useState(null);
-  console.log('Rendering Navigation Bar', isAuthenticated);
   const login = () => auth.login();
   const logout = () => auth.logout('/');
   const toggleNavigationBar = () => setIsNavBarOpen(true);

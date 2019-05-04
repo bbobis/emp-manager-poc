@@ -2,20 +2,17 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Container, ListGroup, ListGroupItem } from 'reactstrap';
 import { withAuth } from '@okta/okta-react';
-import { useToken } from '../../hooks/useAuth';
-import services from '../../api';
+import API from '../../api';
 
 const Departments = ({ auth }) => {
-  const accessToken = useToken(auth);
   const [departments, setDepartments] = useState([]);
 
   useEffect(() => {
-    const api = services(accessToken);
-    api
+    API(auth)
       .getDepartments()
       .then(data => setDepartments(data))
       .catch(() => setDepartments([]));
-  }, [accessToken]);
+  }, [auth]);
 
   return (
     <Container>

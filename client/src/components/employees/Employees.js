@@ -3,20 +3,16 @@ import PropTypes from 'prop-types';
 import { Col, Container, ListGroup, ListGroupItem, Row } from 'reactstrap';
 import { withAuth } from '@okta/okta-react';
 import { Link } from 'react-router-dom';
-import services from '../../api';
-import { useToken } from '../../hooks/useAuth';
+import API from '../../api';
 
 const Employees = ({ auth }) => {
-  const accessToken = useToken(auth);
   const [employees, setEmployees] = useState([]);
-
   useEffect(() => {
-    const api = services(accessToken);
-    api
+    API(auth)
       .getEmployees()
       .then(data => setEmployees(data))
       .catch(() => setEmployees([]));
-  }, [accessToken]);
+  }, [auth]);
 
   return (
     <Container>
