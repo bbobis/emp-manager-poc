@@ -41,9 +41,7 @@ const Employees = ({ auth }) => {
       <ListGroup>
         {employees &&
           employees.map(e => (
-            <ListGroupItem key={`${e.firstName}_${e.lastName}`}>
-              {`${e.firstName} ${e.lastName}`}
-            </ListGroupItem>
+            <ListGroupItem key={e._links.self.href}>{e.fullName}</ListGroupItem>
           ))}
       </ListGroup>
     </Container>

@@ -14,16 +14,20 @@ import PropTypes from 'prop-types';
 import API from '../../api';
 
 // Input control state object
-class FormControlState {
-  constructor(value = '', validationMessage = '') {
-    this.value = value;
-    this.validationMessage = validationMessage;
-  }
+const createFormStateControl = (initialState = '') => ({
+  value: initialState,
+  isValid: true,
+  validationMessage: '',
+});
 
-  isValid() {
-    return this.validationMessage.length === 0;
-  }
-}
+const initializeFormState = () => ({
+  isFormValid: true,
+  firstName: createFormStateControl(),
+  lastName: createFormStateControl(),
+  birthDate: createFormStateControl(moment().format(moment.HTML5_FMT.DATE)),
+  selectedTitle: createFormStateControl(),
+  selectedDepartments: createFormStateControl([]),
+});
 
 // Form validator
 const validate = formState => {
@@ -32,53 +36,54 @@ const validate = formState => {
   // validate first name
   if (!newState.firstName.value) {
     newState.firstName.validationMessage = 'First name is required';
+    newState.firstName.isValid = false;
   }
 
   // validate last name
   if (!newState.lastName.value) {
     newState.lastName.validationMessage = 'Last name is require';
+    newState.lastName.isValid = false;
   }
 
   // validate birth date
   if (!newState.birthDate.value) {
     newState.birthDate.validationMessage = 'Birth date is required';
+    newState.birthDate.isValid = false;
+  }
+
+  if (moment(newState.birthDate.value).isAfter(moment())) {
+    newState.birthDate.validationMessage = 'Birth date cannot be a future date';
+    newState.birthDate.isValid = false;
   }
 
   // validate title
   if (!newState.selectedTitle.value) {
     newState.selectedTitle.validationMessage = 'Title is required';
+    newState.selectedTitle.isValid = false;
   }
 
   // validate departments
   if (!newState.selectedDepartments.value.length) {
     newState.selectedDepartments.validationMessage = 'Department is required';
+    newState.selectedDepartments.isValid = false;
   }
 
   return {
     ...newState,
-    isValid:
-      newState.firstName.isValid() &&
-      newState.lastName.isValid() &&
-      newState.birthDate.isValid() &&
-      newState.selectedTitle.isValid() &&
-      newState.selectedDepartments.isValid(),
+    isFormValid: Object.keys(newState)
+      .filter(key =>
+        Object.prototype.hasOwnProperty.call(newState[key], 'isValid')
+      )
+      .map(key => newState[key].isValid)
+      .reduce((previousValue, currentValue) => previousValue && currentValue),
   };
 };
-
-// From initial State
-const initialState = () => ({
-  isValid: false,
-  firstName: new FormControlState(),
-  lastName: new FormControlState(),
-  birthDate: new FormControlState(moment().format(moment.HTML5_FMT.DATE)),
-  selectedTitle: new FormControlState(),
-  selectedDepartments: new FormControlState([]),
-});
 
 // Component
 const EmployeeCreate = ({ auth }) => {
   const [titles, setTitles] = useState([]);
   const [departments, setDepartments] = useState([]);
+
   useEffect(() => {
     const { getTitles, getDepartments } = API(auth);
 
@@ -93,23 +98,25 @@ const EmployeeCreate = ({ auth }) => {
       .catch(() => []);
   }, [auth]);
 
-  // form states
-  const [formState, setFormState] = useState(initialState());
+  // initialize a clean form
+  const [formState, setFormState] = useState(initializeFormState());
 
   const handleChange = ({ target }) => {
     const newState = { ...formState };
     const { name, value, selectedOptions } = target;
     newState[name] =
       name === 'selectedDepartments'
-        ? new FormControlState([...selectedOptions].map(o => o.value))
-        : new FormControlState(value);
-    setFormState({ ...newState });
+        ? createFormStateControl([...selectedOptions].map(o => o.value))
+        : createFormStateControl(value);
+
+    setFormState(newState);
   };
 
   const handleSubmit = event => {
     event.preventDefault();
     const postedForm = validate(formState);
-    if (postedForm.isValid) {
+
+    if (postedForm.isFormValid) {
       // On successful save return form to initial state
       const { createEmployee } = API(auth);
       createEmployee(
@@ -120,7 +127,7 @@ const EmployeeCreate = ({ auth }) => {
         postedForm.selectedTitle.value,
         postedForm.selectedDepartments.value
       )
-        .then(() => setFormState(initialState()))
+        .then(() => setFormState(initializeFormState()))
         .catch(() => '');
     } else {
       setFormState(postedForm);
@@ -145,11 +152,9 @@ const EmployeeCreate = ({ auth }) => {
             name="firstName"
             value={firstName.value}
             onChange={handleChange}
-            invalid={!firstName.isValid()}
+            invalid={!firstName.isValid}
           />
-          {!firstName.isValid() && (
-            <FormFeedback>{firstName.validationMessage}</FormFeedback>
-          )}
+          <FormFeedback>{firstName.validationMessage}</FormFeedback>
         </FormGroup>
         <FormGroup>
           <Label for="lastName">Last Name</Label>
@@ -157,11 +162,9 @@ const EmployeeCreate = ({ auth }) => {
             name="lastName"
             value={lastName.value}
             onChange={handleChange}
-            invalid={!lastName.isValid()}
+            invalid={!lastName.isValid}
           />
-          {!lastName.isValid() && (
-            <FormFeedback>{lastName.validationMessage}</FormFeedback>
-          )}
+          <FormFeedback>{lastName.validationMessage}</FormFeedback>
         </FormGroup>
         <FormGroup>
           <Label for="birthDate">Birth Date</Label>
@@ -170,11 +173,9 @@ const EmployeeCreate = ({ auth }) => {
             name="birthDate"
             value={birthDate.value}
             onChange={handleChange}
-            invalid={!birthDate.isValid()}
+            invalid={!birthDate.isValid}
           />
-          {!birthDate.isValid() && (
-            <FormFeedback>{birthDate.validationMessage}</FormFeedback>
-          )}
+          <FormFeedback>{birthDate.validationMessage}</FormFeedback>
         </FormGroup>
         <FormGroup>
           <Label for="title">Title</Label>
@@ -183,7 +184,7 @@ const EmployeeCreate = ({ auth }) => {
             name="selectedTitle"
             value={selectedTitle.value}
             onChange={handleChange}
-            invalid={!selectedTitle.isValid()}
+            invalid={!selectedTitle.isValid}
           >
             <option>Select title</option>
             {titles &&
@@ -193,9 +194,7 @@ const EmployeeCreate = ({ auth }) => {
                 </option>
               ))}
           </Input>
-          {!selectedTitle.isValid() && (
-            <FormFeedback>{selectedTitle.validationMessage}</FormFeedback>
-          )}
+          <FormFeedback>{selectedTitle.validationMessage}</FormFeedback>
         </FormGroup>
         <FormGroup>
           <Label for="title">Departments</Label>
@@ -205,7 +204,7 @@ const EmployeeCreate = ({ auth }) => {
             name="selectedDepartments"
             value={selectedDepartments.value}
             onChange={handleChange}
-            invalid={!selectedDepartments.isValid()}
+            invalid={!selectedDepartments.isValid}
           >
             {departments &&
               departments.map(({ name, _links }) => (
@@ -214,9 +213,7 @@ const EmployeeCreate = ({ auth }) => {
                 </option>
               ))}
           </Input>
-          {!selectedDepartments.isValid() && (
-            <FormFeedback>{selectedDepartments.validationMessage}</FormFeedback>
-          )}
+          <FormFeedback>{selectedDepartments.validationMessage}</FormFeedback>
         </FormGroup>
         <Button type="submit">Submit</Button>
       </Form>
