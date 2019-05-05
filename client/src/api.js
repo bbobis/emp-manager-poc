@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import traverson from 'traverson';
 import JsonHalAdapter from 'traverson-hal';
 
@@ -9,22 +8,16 @@ const api = traverson.from('/api/').jsonHal();
 
 /* eslint-disable no-underscore-dangle */
 const API = auth => {
-  const createRequestConfig = async ({ isAuthenticated, getAccessToken }) => {
-    const isUserAuthenticated = await isAuthenticated();
+  const createRequestConfig = async ({ getAccessToken }) => {
+    const token = await getAccessToken();
 
-    if (isUserAuthenticated) {
-      const token = await getAccessToken();
-
-      return {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/hal+json',
-          'Content-Type': 'application/json',
-        },
-      };
-    }
-
-    return undefined;
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/hal+json',
+        'Content-Type': 'application/json',
+      },
+    };
   };
 
   const getEmployees = (search = '') => {
@@ -73,8 +66,24 @@ const API = auth => {
               title,
               departments,
             },
-            () => {
-              resolve('');
+            (error, response) => {
+              if (error) {
+                // handle any network errors
+                // https://github.com/traverson/traverson/blob/master/user-guide.markdown#error-handling
+                reject(
+                  new Error(
+                    'There has been a problem communicating with the employee manager service'
+                  )
+                );
+                return;
+              }
+
+              // TODO - proper error handling
+              if (response.created) {
+                resolve('');
+              } else {
+                reject(new Error('Failed to create employee'));
+              }
             }
           );
       } else {
@@ -126,4 +135,3 @@ const API = auth => {
 };
 
 export default API;
-export const useAPI = auth => useCallback(() => API(auth), [auth]);

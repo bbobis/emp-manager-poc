@@ -11,7 +11,7 @@ import {
 } from 'reactstrap';
 import moment from 'moment/moment';
 import PropTypes from 'prop-types';
-import { useAPI } from '../../api';
+import API from '../../api';
 
 // Input control state object
 class FormControlState {
@@ -70,32 +70,28 @@ const initialState = () => ({
   isValid: false,
   firstName: new FormControlState(),
   lastName: new FormControlState(),
-  birthDate: new FormControlState(moment().format('YYYY-MM-DD')),
+  birthDate: new FormControlState(moment().format(moment.HTML5_FMT.DATE)),
   selectedTitle: new FormControlState(),
   selectedDepartments: new FormControlState([]),
 });
 
 // Component
 const EmployeeCreate = ({ auth }) => {
-  const api = useAPI(auth);
-
-  // fetch titles
   const [titles, setTitles] = useState([]);
-  useEffect(() => {
-    api()
-      .getTitles()
-      .then(data => setTitles(data))
-      .catch(() => []);
-  }, [api]);
-
-  // fetch departments
   const [departments, setDepartments] = useState([]);
   useEffect(() => {
-    api()
-      .getDepartments()
+    const { getTitles, getDepartments } = API(auth);
+
+    // fetch titles
+    getTitles()
+      .then(data => setTitles(data))
+      .catch(() => []);
+
+    // fetch departments
+    getDepartments()
       .then(data => setDepartments(data))
       .catch(() => []);
-  }, [api]);
+  }, [auth]);
 
   // form states
   const [formState, setFormState] = useState(initialState());
@@ -103,7 +99,7 @@ const EmployeeCreate = ({ auth }) => {
   const handleChange = ({ target }) => {
     const newState = { ...formState };
     const { name, value, selectedOptions } = target;
-    newState[`${name}`] =
+    newState[name] =
       name === 'selectedDepartments'
         ? new FormControlState([...selectedOptions].map(o => o.value))
         : new FormControlState(value);
@@ -112,13 +108,22 @@ const EmployeeCreate = ({ auth }) => {
 
   const handleSubmit = event => {
     event.preventDefault();
-    const result = validate(formState);
-    if (result.isValid) {
+    const postedForm = validate(formState);
+    if (postedForm.isValid) {
       // On successful save return form to initial state
-      // Not calling API for actual save at the moment
-      setFormState(initialState());
+      const { createEmployee } = API(auth);
+      createEmployee(
+        postedForm.firstName.value,
+        postedForm.lastName.value,
+        postedForm.birthDate.value,
+        moment().format(moment.HTML5_FMT.DATE),
+        postedForm.selectedTitle.value,
+        postedForm.selectedDepartments.value
+      )
+        .then(() => setFormState(initialState()))
+        .catch(() => '');
     } else {
-      setFormState(result);
+      setFormState(postedForm);
     }
   };
 
